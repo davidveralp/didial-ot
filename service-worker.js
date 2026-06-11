@@ -2,7 +2,7 @@
 // DIDIAL OT — Service Worker
 // Permite funcionamiento offline y actualización automática
 // ════════════════════════════════════════════════════════
-const CACHE_NAME = 'didial-ot-v5.2';
+const CACHE_NAME = 'didial-ot-v5.3';
 const ASSETS = [
   './',
   './index.html',
