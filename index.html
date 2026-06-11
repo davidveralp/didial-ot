@@ -1,0 +1,1177 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DIDIAL — Registro de Orden de Trabajo v5.2 PWA</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%23c4262e'/><text x='16' y='23' font-family='Arial Black,Arial' font-weight='900' font-size='22' fill='white' text-anchor='middle'>D</text></svg>">
+<!-- ═══ PWA ═══ -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#c4262e">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="DIDIAL OT">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<style>
+:root {
+  --ms-purple:#6264a7; --ms-purple-dark:#464775; --ms-purple-light:#e8eaf6;
+  --ms-purple-hover:#f3f2fc; --ms-blue:#0078d4; --ms-bg:#f5f5f5;
+  --ms-white:#ffffff; --ms-border:#d1d1d1; --ms-border-focus:#6264a7;
+  --ms-text:#242424; --ms-text-sub:#616161; --ms-text-light:#8a8a8a;
+  --ms-required:#c4262e; --ms-success:#107c10; --ms-warn:#d83b01;
+  --ms-section-bg:#fafafa; --ms-shadow:0 2px 8px rgba(0,0,0,.08);
+  --ms-shadow-hover:0 4px 16px rgba(0,0,0,.12); --radius:4px; --radius-lg:8px;
+  --taller:#0078d4; --taller-l:#e8f1fb;
+  --sr:#107c10;    --sr-l:#e8f4e8;
+  --dyp:#c4262e;   --dyp-l:#fce8e8;
+  --survey:#7b4fa0; --survey-l:#f3eafa;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:"Segoe UI",-apple-system,BlinkMacSystemFont,sans-serif;background:var(--ms-bg);color:var(--ms-text);font-size:14px;line-height:1.5;min-height:100vh;}
+
+/* HEADER */
+.form-header{background:linear-gradient(135deg,#4b4d8a 0%,#6264a7 60%,#7b7eb8 100%);position:relative;overflow:hidden;}
+.form-header::before{content:'';position:absolute;top:-60px;right:-80px;width:260px;height:260px;background:rgba(255,255,255,.06);border-radius:50%;}
+.header-inner{max-width:740px;margin:0 auto;padding:28px 24px 24px;position:relative;z-index:1;}
+.header-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);border-radius:20px;padding:3px 12px 3px 8px;margin-bottom:12px;font-size:11px;font-weight:600;color:rgba(255,255,255,.9);letter-spacing:.4px;text-transform:uppercase;}
+.form-title{font-size:24px;font-weight:700;color:#fff;letter-spacing:-.3px;margin-bottom:4px;}
+.form-subtitle{font-size:12.5px;color:rgba(255,255,255,.75);}
+.form-meta{display:flex;gap:18px;margin-top:14px;flex-wrap:wrap;}
+.form-meta-item{display:flex;align-items:center;gap:5px;font-size:11px;color:rgba(255,255,255,.7);}
+.progress-bar-wrap{background:var(--ms-purple-dark);height:4px;}
+.progress-bar{height:4px;background:#fff;width:0%;transition:width .4s ease;}
+
+/* LAYOUT */
+.form-body{max-width:740px;margin:0 auto;padding:0 16px 80px;}
+
+/* SESSION */
+.session-banner{background:#fff;border:1px solid var(--ms-border);border-top:none;border-radius:0 0 var(--radius-lg) var(--radius-lg);padding:10px 16px;display:flex;align-items:center;gap:10px;margin-bottom:18px;box-shadow:0 2px 4px rgba(0,0,0,.05);}
+.session-avatar{width:32px;height:32px;background:var(--ms-purple);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff;flex-shrink:0;}
+.session-info{flex:1;}
+.session-name{font-size:13px;font-weight:600;}
+.session-email{font-size:11px;color:var(--ms-text-sub);}
+.session-badge{font-size:10.5px;border-radius:10px;padding:2px 9px;font-weight:600;cursor:pointer;}
+
+/* NAV DOTS */
+.section-nav{display:flex;align-items:center;gap:6px;padding:12px 0 4px;overflow-x:auto;scrollbar-width:none;}
+.nav-dot{width:8px;height:8px;border-radius:50%;background:var(--ms-border);flex-shrink:0;transition:all .2s;cursor:pointer;}
+.nav-dot.active{background:var(--ms-purple);width:24px;border-radius:4px;}
+.nav-dot.done{background:var(--ms-purple);opacity:.45;}
+.nav-label{font-size:11px;color:var(--ms-text-sub);white-space:nowrap;margin-left:2px;}
+
+/* SECTION CARD */
+.section-card{background:var(--ms-white);border-radius:var(--radius-lg);box-shadow:var(--ms-shadow);margin-bottom:10px;overflow:hidden;border:1px solid var(--ms-border);transition:box-shadow .2s;}
+.section-card:hover{box-shadow:var(--ms-shadow-hover);}
+.section-header{padding:14px 18px 12px;border-bottom:2px solid var(--ms-purple-light);display:flex;align-items:center;gap:10px;cursor:pointer;user-select:none;}
+.section-icon{width:30px;height:30px;background:var(--ms-purple-light);border-radius:var(--radius);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.section-icon svg{color:var(--ms-purple);}
+.section-icon.survey-icon{background:var(--survey-l);}
+.section-icon.survey-icon svg{color:var(--survey);}
+.section-title-wrap{flex:1;}
+.section-number{font-size:10px;font-weight:700;color:var(--ms-purple);text-transform:uppercase;letter-spacing:.8px;margin-bottom:1px;}
+.section-title{font-size:14.5px;font-weight:600;}
+.section-chevron{transition:transform .25s ease;color:var(--ms-text-light);}
+.section-chevron.open{transform:rotate(180deg);}
+.section-body{padding:18px;display:flex;flex-direction:column;gap:18px;}
+.section-body.collapsed{display:none;}
+
+/* FIELDS */
+.field{display:flex;flex-direction:column;gap:5px;}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.field-label{font-size:13px;font-weight:600;display:flex;align-items:center;gap:4px;}
+.req{color:var(--ms-required);font-size:14px;line-height:1;}
+.field-hint{font-size:11px;color:var(--ms-text-sub);margin-top:-2px;}
+.field-hint.warn{color:var(--ms-warn);}
+
+/* INPUTS */
+.ms-input,.ms-select,.ms-textarea{width:100%;padding:8px 11px;border:1px solid var(--ms-border);border-radius:var(--radius);font-family:inherit;font-size:14px;color:var(--ms-text);background:#fff;outline:none;transition:border-color .15s,box-shadow .15s;-webkit-appearance:none;}
+.ms-input:focus,.ms-select:focus,.ms-textarea:focus{border-color:var(--ms-border-focus);box-shadow:0 0 0 2px rgba(98,100,167,.15);}
+.ms-input::placeholder{color:var(--ms-text-light);}
+.ms-textarea{resize:vertical;min-height:72px;}
+.ms-input.err{border-color:var(--ms-required);}
+.field-error{font-size:11px;color:var(--ms-required);display:none;}
+.field-error.on{display:block;}
+
+/* RADIO / CHECK */
+.radio-group,.check-group{display:flex;flex-direction:column;gap:7px;}
+.radio-group.inline{flex-direction:row;flex-wrap:wrap;gap:7px 18px;}
+.ms-radio,.ms-check{display:flex;align-items:center;gap:8px;cursor:pointer;padding:7px 11px;border:1px solid var(--ms-border);border-radius:var(--radius);transition:background .12s,border-color .12s;font-size:13px;}
+.ms-radio:hover,.ms-check:hover{background:var(--ms-purple-hover);border-color:var(--ms-purple);}
+.ms-radio.selected,.ms-check.selected{background:var(--ms-purple-light);border-color:var(--ms-purple);}
+.ms-radio input[type=radio],.ms-check input[type=checkbox]{width:15px;height:15px;accent-color:var(--ms-purple);flex-shrink:0;cursor:pointer;}
+
+/* TECH CHIPS */
+.tech-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;}
+.tech-chip{padding:7px 6px;border:1px solid var(--ms-border);border-radius:20px;font-size:12px;font-weight:500;cursor:pointer;text-align:center;transition:all .12s;background:#fff;color:var(--ms-text-sub);user-select:none;}
+.tech-chip:hover{border-color:var(--ms-purple);color:var(--ms-purple);background:var(--ms-purple-hover);}
+.tech-chip.selected{background:var(--ms-purple);border-color:var(--ms-purple);color:#fff;font-weight:600;}
+
+/* TOGGLE yes/no */
+.toggle-wrap{display:flex;gap:10px;}
+.toggle-btn{flex:1;padding:9px;border:1.5px solid var(--ms-border);border-radius:var(--radius);background:#fff;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;transition:all .15s;color:var(--ms-text-sub);}
+.toggle-btn:hover{border-color:var(--ms-purple);color:var(--ms-purple);}
+.toggle-btn.yes{background:#e8f4e8;border-color:var(--ms-success);color:var(--ms-success);}
+.toggle-btn.no{background:#fce8e8;border-color:var(--ms-required);color:var(--ms-required);}
+
+/* CONDITIONAL */
+.cond-block{background:var(--ms-section-bg);border-left:3px solid var(--ms-purple);border-radius:0 var(--radius) var(--radius) 0;padding:13px 13px 13px 15px;display:none;gap:12px;flex-direction:column;animation:slideDown .2s ease;}
+.cond-block.on{display:flex;}
+@keyframes slideDown{from{opacity:0;transform:translateY(-5px);}to{opacity:1;transform:none;}}
+
+/* PRESUPUESTO ITEMS */
+.presup-list{display:flex;flex-direction:column;gap:10px;}
+.presup-item{background:#fff;border:1px solid var(--ms-border);border-radius:var(--radius-lg);padding:13px;position:relative;}
+.presup-item-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.presup-item-title{font-size:12px;font-weight:700;color:var(--ms-purple);}
+.btn-remove{background:none;border:none;cursor:pointer;color:var(--ms-required);font-size:18px;line-height:1;padding:0 4px;}
+.btn-add{display:flex;align-items:center;gap:7px;background:none;border:1.5px dashed var(--ms-purple);border-radius:var(--radius);padding:9px 16px;font-family:inherit;font-size:12.5px;font-weight:600;color:var(--ms-purple);cursor:pointer;transition:all .15s;width:100%;}
+.btn-add:hover{background:var(--ms-purple-light);}
+
+/* AMOUNT */
+.amount-grid{display:grid;grid-template-columns:1fr 1fr;gap:11px;}
+.amount-wrap{position:relative;}
+.amount-prefix{position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:13px;font-weight:600;color:var(--ms-text-sub);pointer-events:none;}
+.amount-wrap .ms-input{padding-left:24px;}
+.iva-note{font-size:11px;color:var(--ms-text-sub);background:#fffbf0;border:1px solid #ffe8a0;border-radius:var(--radius);padding:6px 10px;display:flex;align-items:center;gap:6px;}
+.total-display{background:linear-gradient(135deg,var(--ms-purple-light) 0%,#e3e4f7 100%);border:1.5px solid var(--ms-purple);border-radius:var(--radius);padding:11px 15px;display:flex;align-items:center;justify-content:space-between;}
+.total-label{font-size:12.5px;font-weight:600;color:var(--ms-purple-dark);}
+.total-note{font-size:10px;color:var(--ms-purple);}
+.total-value{font-size:20px;font-weight:700;color:var(--ms-purple-dark);font-variant-numeric:tabular-nums;}
+
+/* SERVICE TYPE ITEMS */
+.svc-list{display:flex;flex-direction:column;gap:10px;}
+.svc-item{background:#fff;border:1px solid var(--ms-border);border-radius:var(--radius-lg);padding:12px;position:relative;}
+.svc-item-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:9px;}
+.svc-item-title{font-size:12px;font-weight:700;color:var(--ms-text-sub);}
+
+/* BU TAGS */
+.bu-tags{display:flex;flex-wrap:wrap;gap:6px;}
+.bu-tag{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:12px;font-size:11.5px;font-weight:700;border:1.5px solid;}
+.bu-taller{background:var(--taller-l);border-color:var(--taller);color:var(--taller);}
+.bu-sr{background:var(--sr-l);border-color:var(--sr);color:var(--sr);}
+.bu-dyp{background:var(--dyp-l);border-color:var(--dyp);color:var(--dyp);}
+.bu-empty{background:#f5f5f5;border-color:var(--ms-border);color:var(--ms-text-light);font-weight:400;}
+
+/* AUTO FIELD */
+.auto-field{display:flex;align-items:center;gap:8px;background:#f0f0f0;border:1px solid #e0e0e0;border-radius:var(--radius);padding:8px 11px;font-size:13px;color:var(--ms-text-sub);}
+.auto-badge{font-size:9.5px;font-weight:700;background:var(--ms-purple);color:#fff;border-radius:3px;padding:1px 5px;text-transform:uppercase;letter-spacing:.4px;flex-shrink:0;}
+.ot-number-display{display:flex;align-items:center;gap:8px;background:linear-gradient(135deg,#e8eaf6,#d0d2f0);border:1.5px solid var(--ms-purple);border-radius:var(--radius);padding:9px 13px;font-size:15px;font-weight:700;color:var(--ms-purple-dark);letter-spacing:0.5px;}
+
+/* STATUS */
+.status-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.status-card{border:1.5px solid var(--ms-border);border-radius:var(--radius-lg);padding:14px 10px;text-align:center;cursor:pointer;transition:all .15s;background:#fff;}
+.status-card:hover{border-color:var(--ms-purple);background:var(--ms-purple-hover);}
+.status-card.sel-entregado.selected{border-color:var(--ms-success);background:#e8f4e8;}
+.status-card.sel-devolucion.selected{border-color:var(--ms-warn);background:#fef3ee;}
+.status-emoji{font-size:22px;margin-bottom:4px;}
+.status-label{font-size:12px;font-weight:600;}
+
+/* DIVIDER */
+hr.divider{border:none;border-top:1px dashed var(--ms-border);margin:2px 0;}
+
+/* SURVEY SECTION */
+.survey-header{border-bottom:2px solid var(--survey-l);}
+.survey-section-number{color:var(--survey) !important;}
+.survey-question{background:var(--survey-l);border:1.5px solid #d4b8ea;border-radius:var(--radius-lg);padding:16px;}
+.survey-question-title{font-size:13px;font-weight:700;color:#5a3080;margin-bottom:12px;display:flex;align-items:flex-start;gap:6px;}
+.survey-q-num{background:var(--survey);color:white;border-radius:50%;width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;margin-top:1px;}
+.scale-wrap{display:flex;flex-direction:column;gap:8px;}
+.scale-labels{display:flex;justify-content:space-between;font-size:10.5px;color:var(--ms-text-sub);font-style:italic;padding:0 2px;}
+.scale-buttons{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;}
+.scale-btn{border:1.5px solid #d4b8ea;border-radius:var(--radius);padding:8px 4px;background:white;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;transition:all .15s;color:#5a3080;text-align:center;}
+.scale-btn:hover{background:#e8d5f5;border-color:var(--survey);}
+.scale-btn.selected{background:var(--survey);border-color:var(--survey);color:white;}
+.scale-btn.selected.score-low{background:#c4262e;border-color:#c4262e;}
+.scale-btn.selected.score-mid{background:#d83b01;border-color:#d83b01;}
+.scale-btn.selected.score-high{background:#107c10;border-color:#107c10;}
+.primera-vez-btn{margin-top:8px;width:100%;padding:8px;border:1.5px dashed #d4b8ea;border-radius:var(--radius);background:white;font-family:inherit;font-size:12px;color:var(--ms-text-sub);cursor:pointer;transition:all .15s;}
+.primera-vez-btn:hover{background:#f0e0ff;border-color:var(--survey);color:var(--survey);}
+.primera-vez-btn.selected{background:#e8d5f5;border-color:var(--survey);color:var(--survey);font-weight:600;}
+
+/* CONOCIO DIDIAL */
+.conocio-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;}
+.conocio-chip{padding:8px 6px;border:1.5px solid #d4b8ea;border-radius:var(--radius);font-size:12px;font-weight:500;cursor:pointer;text-align:center;transition:all .12s;background:white;color:#5a3080;user-select:none;}
+.conocio-chip:hover{border-color:var(--survey);background:#f0e0ff;}
+.conocio-chip.selected{background:var(--survey);border-color:var(--survey);color:white;font-weight:700;}
+
+/* SUBMIT */
+.submit-zone{background:#fff;border-radius:var(--radius-lg);box-shadow:var(--ms-shadow);border:1px solid var(--ms-border);padding:18px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;}
+.btn-submit{background:var(--ms-purple);color:#fff;border:none;border-radius:var(--radius);padding:10px 26px;font-family:inherit;font-size:14px;font-weight:600;cursor:pointer;transition:background .15s,transform .1s;display:flex;align-items:center;gap:7px;}
+.btn-submit:hover{background:var(--ms-purple-dark);transform:translateY(-1px);}
+.btn-clear{background:transparent;color:var(--ms-text-sub);border:1px solid var(--ms-border);border-radius:var(--radius);padding:9px 16px;font-family:inherit;font-size:13px;font-weight:500;cursor:pointer;transition:all .15s;}
+.btn-clear:hover{border-color:var(--ms-required);color:var(--ms-required);}
+.submit-note{font-size:11px;color:var(--ms-text-light);margin-left:auto;}
+
+/* TOAST */
+.toast{position:fixed;bottom:22px;right:22px;background:#1f1f1f;color:#fff;border-radius:var(--radius-lg);padding:11px 16px;font-size:13px;display:flex;align-items:center;gap:9px;box-shadow:0 8px 24px rgba(0,0,0,.2);z-index:999;transform:translateY(80px);opacity:0;transition:all .3s cubic-bezier(.34,1.56,.64,1);max-width:320px;}
+.toast.show{transform:translateY(0);opacity:1;}
+.toast.err{background:var(--ms-required);}
+.toast.ok{background:var(--ms-success);}
+.toast.warn{background:var(--ms-warn);}
+.forms-footer{text-align:center;padding:18px 0 8px;font-size:11px;color:var(--ms-text-light);}
+@media(max-width:600px){
+  .field-row,.amount-grid,.tech-grid,.scale-buttons{grid-template-columns:1fr;}
+  .scale-buttons{grid-template-columns:repeat(7,1fr);}
+  .tech-grid{grid-template-columns:repeat(3,1fr);}
+  .conocio-grid{grid-template-columns:repeat(2,1fr);}
+  .status-grid{grid-template-columns:1fr 1fr;}
+  .submit-zone{flex-direction:column;align-items:stretch;}
+  .submit-note{margin-left:0;}
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="form-header">
+  <div class="header-inner">
+    <div class="header-badge">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14,2 14,8 20,8"/></svg>
+      Servicio Automotriz DIDIAL
+    </div>
+    <div class="form-title">Registro de Orden de Trabajo</div>
+    <div class="form-subtitle">Ingreso / Entrega de OT · Toyota &amp; Multimarca · v5.1</div>
+    <div class="form-meta">
+      <div class="form-meta-item">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12,6 12,12 16,14"/></svg>
+        7–10 min estimado
+      </div>
+      <div class="form-meta-item">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        Solo usuarios DIDIAL
+      </div>
+      <div class="form-meta-item">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Datos directos a Google Sheets
+      </div>
+    </div>
+  </div>
+  <div class="progress-bar-wrap"><div class="progress-bar" id="progressBar"></div></div>
+</div>
+
+<div class="form-body">
+  <!-- NAV -->
+  <div class="section-nav" id="sectionNav">
+    <div class="nav-dot active" onclick="jumpTo(0)"></div>
+    <div class="nav-dot" onclick="jumpTo(1)"></div>
+    <div class="nav-dot" onclick="jumpTo(2)"></div>
+    <div class="nav-dot" onclick="jumpTo(3)"></div>
+    <div class="nav-dot" onclick="jumpTo(4)"></div>
+    <div class="nav-dot" onclick="jumpTo(5)"></div>
+    <div class="nav-dot" onclick="jumpTo(6)"></div>
+    <span class="nav-label" id="navLabel">1 / 7 — Ingreso de Orden</span>
+  </div>
+
+  <!-- SESSION BANNER -->
+  <div class="session-banner">
+    <div class="session-avatar" id="sAvatar">DL</div>
+    <div class="session-info">
+      <div class="session-name" id="sName">Diego Leyton</div>
+      <div class="session-email" id="sEmail">asesordidial@hotmail.com</div>
+    </div>
+    <span class="session-badge" id="sBadge" onclick="rotateAsesor()" title="Clic para cambiar asesor" style="background:#e8f1fb;color:#0078d4;border:1px solid #bdd7ee;">🏢 Toyota</span>
+  </div>
+
+  <!-- SEC 1 — INGRESO DE ORDEN -->
+  <div class="section-card" id="sec0">
+    <div class="section-header" onclick="toggleSection(0)">
+      <div class="section-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="2" width="6" height="4" rx="1"/><path d="M17 4h2a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V6a2 2 0 012-2h2"/></svg></div>
+      <div class="section-title-wrap"><div class="section-number">Sección 1 de 7</div><div class="section-title">Ingreso de Orden</div></div>
+      <svg class="section-chevron open" id="chev0" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6,9 12,15 18,9"/></svg>
+    </div>
+    <div class="section-body" id="body0">
+      <div class="field-row">
+        <div class="field">
+          <label class="field-label">N° Orden de Trabajo <span class="req">*</span></label>
+          <div class="field-hint">Ingresa el número que entrega el sistema · ej: 13050, 13051…</div>
+          <input class="ms-input" id="nroOT" type="number" placeholder="Ej: 13050" min="13050" oninput="updateProgress()" style="font-size:16px;font-weight:700;letter-spacing:0.5px;">
+          <span class="field-error" id="err-nroOT">Ingresa un número de OT válido.</span>
+        </div>
+        <div class="field">
+          <label class="field-label">Fecha de Ingreso <span class="req">*</span></label>
+          <input class="ms-input" id="fechaIngreso" type="date" oninput="updateProgress()">
+        </div>
+      </div>
+      <div class="field">
+        <label class="field-label">Tipo de Ingreso <span class="req">*</span></label>
+        <div class="radio-group" id="tipoIngreso">
+          <label class="ms-radio" onclick="selectRadio('tipoIngreso',this)"><input type="radio" name="tipoIngreso"> Normal</label>
+          <label class="ms-radio" onclick="selectRadio('tipoIngreso',this)"><input type="radio" name="tipoIngreso"> Convenio</label>
+          <label class="ms-radio" onclick="selectRadio('tipoIngreso',this)"><input type="radio" name="tipoIngreso"> Garantía Mano de Obra</label>
+          <label class="ms-radio" onclick="selectRadio('tipoIngreso',this)"><input type="radio" name="tipoIngreso"> Garantía Repuestos</label>
+          <label class="ms-radio" onclick="selectRadio('tipoIngreso',this)"><input type="radio" name="tipoIngreso"> Mal Diagnóstico</label>
+          <label class="ms-radio" onclick="selectRadio('tipoIngreso',this)"><input type="radio" name="tipoIngreso"> Otro</label>
+        </div>
+      </div>
+      <div class="field">
+        <label class="field-label">Técnico Principal <span class="req">*</span></label>
+        <div class="field-hint">Un solo técnico responsable de la OT</div>
+        <div class="tech-grid" id="tecPrincipal">
+          <div class="tech-chip" onclick="selectTech('tecPrincipal',this,'single')">Ignacio</div>
+          <div class="tech-chip" onclick="selectTech('tecPrincipal',this,'single')">Shelmy</div>
+          <div class="tech-chip" onclick="selectTech('tecPrincipal',this,'single')">Felipe</div>
+          <div class="tech-chip" onclick="selectTech('tecPrincipal',this,'single')">Sergio</div>
+          <div class="tech-chip" onclick="selectTech('tecPrincipal',this,'single')">Gabriel</div>
+          <div class="tech-chip" onclick="selectTech('tecPrincipal',this,'single')">Javier</div>
+          <div class="tech-chip" onclick="selectTech('tecPrincipal',this,'single')">Wilson</div>
+          <div class="tech-chip" onclick="selectTech('tecPrincipal',this,'single')">Alexis</div>
+          <div class="tech-chip" onclick="selectTech('tecPrincipal',this,'single')">Andrés</div>
+          <div class="tech-chip" onclick="selectTech('tecPrincipal',this,'single')">Otro</div>
+        </div>
+      </div>
+      <div class="field">
+        <label class="field-label">Técnicos Secundarios <span style="color:var(--ms-text-light);font-weight:400;font-size:12px">(opcional · selección múltiple)</span></label>
+        <div class="tech-grid" id="tecSecundario">
+          <div class="tech-chip" onclick="selectTech('tecSecundario',this,'multi')">Ignacio</div>
+          <div class="tech-chip" onclick="selectTech('tecSecundario',this,'multi')">Shelmy</div>
+          <div class="tech-chip" onclick="selectTech('tecSecundario',this,'multi')">Felipe</div>
+          <div class="tech-chip" onclick="selectTech('tecSecundario',this,'multi')">Sergio</div>
+          <div class="tech-chip" onclick="selectTech('tecSecundario',this,'multi')">Gabriel</div>
+          <div class="tech-chip" onclick="selectTech('tecSecundario',this,'multi')">Javier</div>
+          <div class="tech-chip" onclick="selectTech('tecSecundario',this,'multi')">Wilson</div>
+          <div class="tech-chip" onclick="selectTech('tecSecundario',this,'multi')">Alexis</div>
+          <div class="tech-chip" onclick="selectTech('tecSecundario',this,'multi')">Andrés</div>
+          <div class="tech-chip" id="tecSecOtroChip" onclick="selectTecSecOtro(this)">Otro</div>
+        </div>
+        <div class="cond-block" id="condTecSecOtro" style="margin-top:6px;">
+          <div class="field">
+            <label class="field-label">Nombre del técnico</label>
+            <input class="ms-input" id="tecSecOtroNombre" type="text" placeholder="Ingresa el nombre…">
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SEC 2 — DATOS DEL VEHÍCULO -->
+  <div class="section-card" id="sec1">
+    <div class="section-header" onclick="toggleSection(1)">
+      <div class="section-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="3" width="15" height="13" rx="2"/><path d="M16 8h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg></div>
+      <div class="section-title-wrap"><div class="section-number">Sección 2 de 7</div><div class="section-title">Datos del Vehículo</div></div>
+      <svg class="section-chevron" id="chev1" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6,9 12,15 18,9"/></svg>
+    </div>
+    <div class="section-body collapsed" id="body1">
+      <div class="field-row">
+        <div class="field">
+          <label class="field-label">Patente <span class="req">*</span></label>
+          <div class="field-hint">Formato automático: AB CD 78 o AB 1234</div>
+          <input class="ms-input" id="patente" type="text" placeholder="Ingresa la patente…" maxlength="9" oninput="formatPatente(this);updateProgress()">
+        </div>
+        <div class="field">
+          <label class="field-label">Año <span class="req">*</span></label>
+          <input class="ms-input" id="anio" type="number" placeholder="Ej: 2019" min="1990" max="2026" oninput="updateProgress()">
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label class="field-label">Marca <span class="req">*</span></label>
+          <select class="ms-select" id="marca" onchange="updateModelos();updateProgress()">
+            <option value="">Seleccionar marca…</option>
+            <optgroup label="── Top 30 del taller ──">
+              <option>Toyota</option><option>Hyundai</option><option>Nissan</option>
+              <option>Suzuki</option><option>Chevrolet</option><option>Kia</option>
+              <option>Mitsubishi</option><option>Ford</option><option>Peugeot</option>
+              <option>Mazda</option><option>SsangYong</option><option>Subaru</option>
+              <option>JAC</option><option>Changan</option><option>Jeep</option>
+              <option>Chery</option><option>Volkswagen</option><option>Renault</option>
+              <option>Great Wall</option><option>Mahindra</option><option>MG</option>
+              <option>Citroën</option><option>Samsung</option><option>Honda</option>
+              <option>Maxus</option><option>BAIC</option><option>Fiat</option>
+              <option>Dodge</option><option>RAM</option><option>Geely</option>
+            </optgroup>
+            <optgroup label="── Otra ──">
+              <option value="__otra__">Otra (especificar)</option>
+            </optgroup>
+          </select>
+        </div>
+        <div class="field">
+          <label class="field-label">Modelo <span class="req">*</span></label>
+          <input class="ms-input" id="modeloInput" type="text" placeholder="Ej: Hilux, Yaris, L200…" oninput="updateProgress()">
+        </div>
+      </div>
+      <div class="cond-block" id="condMarcaOtra">
+        <div class="field">
+          <label class="field-label">Especifica la marca</label>
+          <input class="ms-input" id="marcaOtra" type="text" placeholder="Nombre de la marca…">
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label class="field-label">Cilindrada</label>
+          <div class="field-hint">Selecciona o escribe manualmente</div>
+          <input class="ms-input" id="cilindrada" type="text" list="cilindradaList" placeholder="Ej: 2.0, 2.4, 1.6…">
+          <datalist id="cilindradaList">
+            <option value="0.8"><option value="1.0"><option value="1.1">
+            <option value="1.2"><option value="1.3"><option value="1.4">
+            <option value="1.5"><option value="1.6"><option value="1.7">
+            <option value="1.8"><option value="1.9"><option value="2.0">
+            <option value="2.1"><option value="2.2"><option value="2.3">
+            <option value="2.4"><option value="2.5"><option value="2.6">
+            <option value="2.7"><option value="2.8"><option value="2.9">
+            <option value="3.0"><option value="3.2"><option value="3.3">
+            <option value="3.5"><option value="3.8"><option value="4.0">
+            <option value="4.2"><option value="4.4"><option value="4.6">
+            <option value="4.7"><option value="5.0"><option value="5.7">
+            <option value="6.2"><option value="6.7"><option value="Eléctrico">
+            <option value="Híbrido 1.8"><option value="Híbrido 2.0"><option value="Híbrido 2.5">
+          </datalist>
+        </div>
+        <div class="field">
+          <label class="field-label">Kilometraje <span class="req">*</span></label>
+          <input class="ms-input" id="km" type="number" placeholder="Ej: 87500" min="0" oninput="updateProgress()">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SEC 3 — DATOS DEL CLIENTE -->
+  <div class="section-card" id="sec2">
+    <div class="section-header" onclick="toggleSection(2)">
+      <div class="section-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
+      <div class="section-title-wrap"><div class="section-number">Sección 3 de 7</div><div class="section-title">Datos del Cliente</div></div>
+      <svg class="section-chevron" id="chev2" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6,9 12,15 18,9"/></svg>
+    </div>
+    <div class="section-body collapsed" id="body2">
+      <div class="field">
+        <label class="field-label">Tipo de Cliente <span class="req">*</span></label>
+        <div class="radio-group inline" id="tipoCliente">
+          <label class="ms-radio" onclick="selectRadio('tipoCliente',this)"><input type="radio" name="tipoCliente"> 👤 Particular</label>
+          <label class="ms-radio" onclick="selectRadio('tipoCliente',this)"><input type="radio" name="tipoCliente"> 🏢 Empresa</label>
+          <label class="ms-radio" onclick="selectRadio('tipoCliente',this)"><input type="radio" name="tipoCliente"> 🔧 Interno</label>
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label class="field-label">Propietario / Razón Social <span class="req">*</span></label>
+          <input class="ms-input" id="propietario" type="text" placeholder="Nombre completo o razón social" oninput="updateProgress()">
+        </div>
+        <div class="field">
+          <label class="field-label">Teléfono <span class="req">*</span></label>
+          <input class="ms-input" id="telefono" type="tel" placeholder="+56 9 XXXX XXXX" oninput="formatTelefono(this);updateProgress()">
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label class="field-label">Correo Electrónico</label>
+          <input class="ms-input" id="emailCliente" type="email" placeholder="cliente@ejemplo.com">
+        </div>
+        <div class="field">
+          <label class="field-label">Ciudad</label>
+          <select class="ms-select" id="ciudad" onchange="checkCiudadOtra()">
+            <option value="">Seleccionar…</option>
+            <optgroup label="── Región de Coquimbo ──">
+              <option>La Serena</option><option>Coquimbo</option><option>Ovalle</option>
+              <option>Vicuña</option><option>Illapel</option><option>Combarbalá</option>
+              <option>Salamanca</option><option>Los Vilos</option><option>Andacollo</option>
+              <option>Monte Patria</option><option>Punitaqui</option><option>Río Hurtado</option><option>Canela</option>
+            </optgroup>
+            <optgroup label="── Otras regiones ──">
+              <option>Santiago</option><option>Valparaíso</option><option>Viña del Mar</option>
+              <option>Antofagasta</option><option>Concepción</option><option>Temuco</option><option>Puerto Montt</option>
+            </optgroup>
+            <optgroup label="── Otro ──">
+              <option value="__otra__">Otra (especificar)</option>
+            </optgroup>
+          </select>
+          <div class="cond-block" id="condCiudadOtra" style="margin-top:6px;padding:0;border:none;background:none;">
+            <input class="ms-input" id="ciudadOtra" type="text" placeholder="Nombre de la ciudad…">
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SEC 4 — INFORMACIÓN REPARACIÓN -->
+  <div class="section-card" id="sec3">
+    <div class="section-header" onclick="toggleSection(3)">
+      <div class="section-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 100 7h5a3.5 3.5 0 110 7H6"/></svg></div>
+      <div class="section-title-wrap"><div class="section-number">Sección 4 de 7</div><div class="section-title">Información de la Reparación</div></div>
+      <svg class="section-chevron" id="chev3" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6,9 12,15 18,9"/></svg>
+    </div>
+    <div class="section-body collapsed" id="body3">
+      <div class="field">
+        <label class="field-label">Presupuestos</label>
+        <div class="presup-list" id="presupList"></div>
+        <button type="button" class="btn-add" onclick="addPresupuesto()" style="margin-top:8px">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Agregar presupuesto
+        </button>
+      </div>
+      <hr class="divider">
+      <div class="field">
+        <label class="field-label">Montos de la Reparación</label>
+        <div class="iva-note">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          Todos los montos con <strong>IVA incluido (valores brutos)</strong>
+        </div>
+      </div>
+      <div class="amount-grid">
+        <div class="field"><label class="field-label">Repuestos</label><div class="amount-wrap"><span class="amount-prefix">$</span><input class="ms-input" id="montoRep" type="number" placeholder="0" min="0" oninput="updateTotal()"></div></div>
+        <div class="field"><label class="field-label">Lubricantes e Insumos</label><div class="amount-wrap"><span class="amount-prefix">$</span><input class="ms-input" id="montoLub" type="number" placeholder="0" min="0" oninput="updateTotal()"></div></div>
+        <div class="field"><label class="field-label">Mano de Obra <span class="req">*</span></label><div class="amount-wrap"><span class="amount-prefix">$</span><input class="ms-input" id="montoMO" type="number" placeholder="0" min="0" oninput="updateTotal();validateMoByBu()"></div></div>
+        <div class="field"><label class="field-label">Servicio Externo</label><div class="amount-wrap"><span class="amount-prefix">$</span><input class="ms-input" id="montoSE" type="number" placeholder="0" min="0" oninput="updateTotal();toggleServExt()"></div></div>
+      </div>
+      <div class="cond-block" id="condServExt">
+        <div class="field">
+          <label class="field-label">Detalle del Servicio Externo <span class="req">*</span></label>
+          <textarea class="ms-textarea" id="descSE" placeholder="Describe el servicio, proveedor y concepto…"></textarea>
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field"><label class="field-label">Descuento</label><div class="amount-wrap"><span class="amount-prefix">$</span><input class="ms-input" id="descuento" type="number" placeholder="0" min="0" oninput="updateTotal()"></div></div>
+        <div></div>
+      </div>
+      <div class="total-display">
+        <div><div class="total-label">⚡ Total Reparación (con IVA)</div><div class="total-note">Calculado automáticamente</div></div>
+        <div id="totalDisplay" class="total-value">$ 0</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SEC 5 — CLASIFICACIÓN SERVICIO -->
+  <div class="section-card" id="sec4">
+    <div class="section-header" onclick="toggleSection(4)">
+      <div class="section-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg></div>
+      <div class="section-title-wrap"><div class="section-number">Sección 5 de 7</div><div class="section-title">Clasificación del Servicio</div></div>
+      <svg class="section-chevron" id="chev4" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6,9 12,15 18,9"/></svg>
+    </div>
+    <div class="section-body collapsed" id="body4">
+      <div class="field">
+        <label class="field-label">Tipos de Servicio <span class="req">*</span></label>
+        <div class="svc-list" id="svcList"></div>
+        <button type="button" class="btn-add" onclick="addServicio()" style="margin-top:8px">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Agregar otro tipo de servicio
+        </button>
+      </div>
+      <div class="field">
+        <label class="field-label">Unidades de Negocio</label>
+        <div class="field-hint">Calculadas automáticamente según servicios</div>
+        <div class="bu-tags" id="buTags"><span class="bu-tag bu-empty">— Selecciona al menos un servicio →</span></div>
+      </div>
+      <div class="cond-block" id="moByBuBlock" style="display:none;flex-direction:column;gap:12px;border-left-color:#6264a7">
+        <div style="font-size:12px;font-weight:700;color:#464775;">💰 Distribución Mano de Obra por Unidad de Negocio</div>
+        <div class="field-hint" style="margin-top:-6px">La suma debe ser igual al total de MO ingresado.</div>
+        <div id="moByBuInputs" style="display:flex;flex-direction:column;gap:10px;"></div>
+        <div id="moByBuValidation" style="display:none;font-size:11.5px;padding:7px 10px;border-radius:4px;font-weight:600;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SEC 6 — ESTADO Y ENTREGA -->
+  <div class="section-card" id="sec5">
+    <div class="section-header" onclick="toggleSection(5)">
+      <div class="section-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92V20a2 2 0 01-2.18 2A19.79 19.79 0 0112 20a19.79 19.79 0 01-8-2 19.73 19.73 0 01-2-7.93A2 2 0 013.92 8h3.09a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 15a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 22v-.08z"/></svg></div>
+      <div class="section-title-wrap"><div class="section-number">Sección 6 de 7</div><div class="section-title">Estado y Entrega</div></div>
+      <svg class="section-chevron" id="chev5" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6,9 12,15 18,9"/></svg>
+    </div>
+    <div class="section-body collapsed" id="body5">
+      <div class="field">
+        <label class="field-label">Estado del Vehículo <span class="req">*</span></label>
+        <div class="status-grid">
+          <div class="status-card sel-entregado" onclick="selectStatus(this,'Entregado')"><div class="status-emoji">✅</div><div class="status-label">Entregado</div></div>
+          <div class="status-card sel-devolucion" onclick="selectStatus(this,'Devolución')"><div class="status-emoji">↩️</div><div class="status-label">Devolución</div></div>
+        </div>
+        <input type="hidden" id="estadoVehiculo">
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label class="field-label">Fecha de Entrega <span class="req">*</span></label>
+          <input class="ms-input" id="fechaEntrega" type="date" oninput="updateProgress()">
+        </div>
+        <div class="field">
+          <label class="field-label">Tipo Documento Tributario <span class="req">*</span></label>
+          <div class="radio-group" id="tipoDoc">
+            <label class="ms-radio" onclick="selectRadio('tipoDoc',this)"><input type="radio" name="tipoDoc"> 🧾 Boleta</label>
+            <label class="ms-radio" onclick="selectRadio('tipoDoc',this)"><input type="radio" name="tipoDoc"> 📄 Factura</label>
+            <label class="ms-radio" onclick="selectRadio('tipoDoc',this)"><input type="radio" name="tipoDoc"> 🚫 Sin Documento</label>
+          </div>
+        </div>
+      </div>
+      <div class="field">
+        <label class="field-label">N° Documento Tributario</label>
+        <input class="ms-input" id="nroDoc" type="text" placeholder="Número de boleta o factura…">
+      </div>
+    </div>
+  </div>
+
+  <!-- SEC 7 — ENCUESTA DE SATISFACCIÓN -->
+  <div class="section-card" id="sec6">
+    <div class="section-header survey-header" onclick="toggleSection(6)">
+      <div class="section-icon survey-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></div>
+      <div class="section-title-wrap"><div class="section-number survey-section-number">Sección 7 de 7</div><div class="section-title">Encuesta de Satisfacción</div></div>
+      <svg class="section-chevron" id="chev6" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6,9 12,15 18,9"/></svg>
+    </div>
+    <div class="section-body collapsed" id="body6">
+
+      <!-- ¿Aplica encuesta? -->
+      <div class="field">
+        <label class="field-label">¿Este servicio lleva encuesta de satisfacción?</label>
+        <div class="field-hint">Algunos servicios internos o garantías no requieren encuesta</div>
+        <div class="toggle-wrap">
+          <button type="button" class="toggle-btn" id="encSiBtn" onclick="toggleEncuesta(true,this)">✅ Sí, aplica encuesta</button>
+          <button type="button" class="toggle-btn" id="encNoBtn" onclick="toggleEncuesta(false,this)">❌ No aplica</button>
+        </div>
+      </div>
+
+      <!-- Bloque encuesta condicional -->
+      <div class="cond-block on" id="encuestaBloque" style="display:none;flex-direction:column;gap:16px;border-left-color:var(--survey);background:var(--survey-l);">
+
+        <!-- P1 — Tiempo de entrega -->
+        <div class="survey-question">
+          <div class="survey-question-title"><span class="survey-q-num">1</span> ¿Su vehículo fue entregado justo a tiempo?</div>
+          <div class="scale-wrap">
+            <div class="scale-labels"><span>1 — No fue entregado a tiempo</span><span>7 — Entregado a tiempo</span></div>
+            <div class="scale-buttons" id="p1Scale">
+              <button type="button" class="scale-btn score-low" onclick="selectScale('p1Scale',1,this)">1</button>
+              <button type="button" class="scale-btn score-low" onclick="selectScale('p1Scale',2,this)">2</button>
+              <button type="button" class="scale-btn score-mid" onclick="selectScale('p1Scale',3,this)">3</button>
+              <button type="button" class="scale-btn score-mid" onclick="selectScale('p1Scale',4,this)">4</button>
+              <button type="button" class="scale-btn score-mid" onclick="selectScale('p1Scale',5,this)">5</button>
+              <button type="button" class="scale-btn score-high" onclick="selectScale('p1Scale',6,this)">6</button>
+              <button type="button" class="scale-btn score-high" onclick="selectScale('p1Scale',7,this)">7</button>
+            </div>
+          </div>
+          <input type="hidden" id="p1Value">
+        </div>
+
+        <!-- P2 — Atención al cliente -->
+        <div class="survey-question">
+          <div class="survey-question-title"><span class="survey-q-num">2</span> ¿Cómo fue la atención al cliente?</div>
+          <div class="scale-wrap">
+            <div class="scale-labels"><span>1 — Mala atención</span><span>7 — Excelente atención</span></div>
+            <div class="scale-buttons" id="p2Scale">
+              <button type="button" class="scale-btn score-low" onclick="selectScale('p2Scale',1,this)">1</button>
+              <button type="button" class="scale-btn score-low" onclick="selectScale('p2Scale',2,this)">2</button>
+              <button type="button" class="scale-btn score-mid" onclick="selectScale('p2Scale',3,this)">3</button>
+              <button type="button" class="scale-btn score-mid" onclick="selectScale('p2Scale',4,this)">4</button>
+              <button type="button" class="scale-btn score-mid" onclick="selectScale('p2Scale',5,this)">5</button>
+              <button type="button" class="scale-btn score-high" onclick="selectScale('p2Scale',6,this)">6</button>
+              <button type="button" class="scale-btn score-high" onclick="selectScale('p2Scale',7,this)">7</button>
+            </div>
+          </div>
+          <input type="hidden" id="p2Value">
+        </div>
+
+        <!-- P3 — Servicio mecánico vs visitas anteriores -->
+        <div class="survey-question">
+          <div class="survey-question-title"><span class="survey-q-num">3</span> ¿Cómo califica el servicio mecánico realizado vs. servicios anteriores?</div>
+          <div class="scale-wrap">
+            <div class="scale-labels"><span>1 — Mal servicio</span><span>7 — Excelente servicio</span></div>
+            <div class="scale-buttons" id="p3Scale">
+              <button type="button" class="scale-btn score-low" onclick="selectScale('p3Scale',1,this)">1</button>
+              <button type="button" class="scale-btn score-low" onclick="selectScale('p3Scale',2,this)">2</button>
+              <button type="button" class="scale-btn score-mid" onclick="selectScale('p3Scale',3,this)">3</button>
+              <button type="button" class="scale-btn score-mid" onclick="selectScale('p3Scale',4,this)">4</button>
+              <button type="button" class="scale-btn score-mid" onclick="selectScale('p3Scale',5,this)">5</button>
+              <button type="button" class="scale-btn score-high" onclick="selectScale('p3Scale',6,this)">6</button>
+              <button type="button" class="scale-btn score-high" onclick="selectScale('p3Scale',7,this)">7</button>
+            </div>
+            <button type="button" class="primera-vez-btn" id="p3PrimeraVez" onclick="togglePrimeraVez(this)">
+              ⭐ Primera vez que visito el taller
+            </button>
+          </div>
+          <input type="hidden" id="p3Value">
+        </div>
+
+        <!-- P4 — NPS / Recomendación -->
+        <div class="survey-question">
+          <div class="survey-question-title"><span class="survey-q-num">4</span> ¿Recomendaría nuestros servicios?</div>
+          <div class="scale-wrap">
+            <div class="scale-labels"><span>1 — No lo recomiendo</span><span>7 — Sí lo recomiendo</span></div>
+            <div class="scale-buttons" id="p4Scale">
+              <button type="button" class="scale-btn score-low" onclick="selectScale('p4Scale',1,this)">1</button>
+              <button type="button" class="scale-btn score-low" onclick="selectScale('p4Scale',2,this)">2</button>
+              <button type="button" class="scale-btn score-mid" onclick="selectScale('p4Scale',3,this)">3</button>
+              <button type="button" class="scale-btn score-mid" onclick="selectScale('p4Scale',4,this)">4</button>
+              <button type="button" class="scale-btn score-mid" onclick="selectScale('p4Scale',5,this)">5</button>
+              <button type="button" class="scale-btn score-high" onclick="selectScale('p4Scale',6,this)">6</button>
+              <button type="button" class="scale-btn score-high" onclick="selectScale('p4Scale',7,this)">7</button>
+            </div>
+          </div>
+          <input type="hidden" id="p4Value">
+        </div>
+
+        <!-- P5 — ¿Cómo conoció DIDIAL? -->
+        <div class="survey-question">
+          <div class="survey-question-title"><span class="survey-q-num">5</span> ¿Cómo conoció DIDIAL?</div>
+          <div class="conocio-grid" id="conocioGrid">
+            <div class="conocio-chip" onclick="selectConocio(this,'Recomendación')">🗣️ Recomendación</div>
+            <div class="conocio-chip" onclick="selectConocio(this,'Video de Instagram')">📸 Video de Instagram</div>
+            <div class="conocio-chip" onclick="selectConocio(this,'Facebook')">📘 Facebook</div>
+            <div class="conocio-chip" onclick="selectConocio(this,'Google')">🔍 Google</div>
+            <div class="conocio-chip" onclick="selectConocio(this,'De paso')">🚶 De paso</div>
+            <div class="conocio-chip" onclick="selectConocio(this,'Radio')">📻 Radio</div>
+            <div class="conocio-chip" onclick="selectConocio(this,'Otro')">💬 Otro</div>
+          </div>
+          <input type="hidden" id="conocioValue">
+          <div class="cond-block" id="condConocioOtro" style="margin-top:8px">
+            <div class="field">
+              <label class="field-label">Especifica cómo nos conoció</label>
+              <input class="ms-input" id="conocioOtro" type="text" placeholder="Describe cómo conoció DIDIAL…">
+            </div>
+          </div>
+        </div>
+
+      </div><!-- fin encuestaBloque -->
+    </div>
+  </div>
+
+  <!-- SUBMIT -->
+  <div class="submit-zone">
+    <button class="btn-submit" onclick="saveToGoogleSheets()">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14,2 14,8 20,8"/><line x1="12" y1="13" x2="12" y2="17"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+      Guardar en Base de Datos
+    </button>
+    <button class="btn-clear" onclick="clearForm()">Limpiar formulario</button>
+    <span class="submit-note">Campos <span style="color:var(--ms-required);font-weight:700">*</span> obligatorios</span>
+  </div>
+
+  <div class="forms-footer">
+    DIDIAL Servicio Automotriz · RUT 76.606.161-3 · La Serena, Chile<br>
+    Los datos se registran directamente en Google Sheets · v5.1
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ════════════════════════════════════════════════════
+// CONFIG
+// ════════════════════════════════════════════════════
+const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyDbfNHIoL70hP_mDzR0pHo8OmrPTDVveeYG-NWylEYa9lZAwuWiRgB40-iT9znlgJ4hA/exec";
+const OT_INICIO = 13050; // Correlativo inicial
+
+// ════════════════════════════════════════════════════
+// SERVICIOS
+// ════════════════════════════════════════════════════
+const SVC_TALLER = ["MAN X PAUTA","MAN BASICA","EMBRAGUE","AMORTIGUADOR","CORREAS","DISTRIBUCION","REFRIGERACION","A/C RECARGA","A/C REPARACION","INYECCION","DPF","MOTOR REPARACION","MOTOR REEMPLAZO","ADMISION EGR","ALTERNADOR","ARRANQUE","FRENOS","TREN DELANTERO","DIAGNOSTICO","OTROS TALLER"];
+const SVC_SR = ["REV EXPRESS","REV PREVENTIVA","CAMBIO DE ACEITE","VULCANIZACION","BALANCEO","ESCANER","ALINEACION","OTROS SERVICIO RÁPIDO"];
+const SVC_DYP = ["DESABOLLADURA Y PINTURA","SINIESTRO ROBO","LIMPIEZA VEHICULO","LIMPIEZA DE MOTOR","LAVADO DE TAPIZ","PULIDO Y ENCERADO","OTROS DYP"];
+const SVC_REQUIRES_DETAIL = new Set(["OTROS TALLER","OTROS SERVICIO RÁPIDO","OTROS DYP"]);
+function getBU(svc){if(SVC_DYP.includes(svc))return"DyP";if(SVC_SR.includes(svc))return"Servicio Rápido";if(SVC_TALLER.includes(svc))return"Taller Mecánico";return null;}
+
+// ════════════════════════════════════════════════════
+// SESIÓN
+// ════════════════════════════════════════════════════
+const asesores=[
+  {name:"Diego Leyton",email:"asesordidial@hotmail.com",initials:"DL",sucursal:"Toyota",bg:"#e8f1fb",color:"#0078d4"},
+  {name:"Ángel Yáñez",email:"vendedordidial@outlook.com",initials:"AY",sucursal:"Multimarca",bg:"#e8f4e8",color:"#107c10"},
+  {name:"David Rivera",email:"lubricentrodidial@hotmail.com",initials:"DR",sucursal:"Multimarca",bg:"#e8f4e8",color:"#107c10"},
+];
+let curAsesor=0;
+function rotateAsesor(){
+  curAsesor=(curAsesor+1)%asesores.length;
+  const a=asesores[curAsesor];
+  document.getElementById("sAvatar").textContent=a.initials;
+  document.getElementById("sName").textContent=a.name;
+  document.getElementById("sEmail").textContent=a.email;
+  const b=document.getElementById("sBadge");
+  b.textContent="🏢 "+a.sucursal;b.style.background=a.bg;b.style.color=a.color;b.style.border="1px solid "+a.color;
+  showToast("Sesión: "+a.name+" — "+a.sucursal,"ok");
+}
+document.getElementById("fechaIngreso").valueAsDate=new Date();
+document.getElementById("fechaEntrega").valueAsDate=new Date();
+
+// ════════════════════════════════════════════════════
+// SECCIONES
+// ════════════════════════════════════════════════════
+const SEC_NAMES=["Ingreso de Orden","Datos del Vehículo","Datos del Cliente","Información Reparación","Clasificación Servicio","Estado y Entrega","Encuesta de Satisfacción"];
+let openSec=0;
+function toggleSection(i){if(openSec===i){collapseS(i);openSec=-1;}else{if(openSec>=0)collapseS(openSec);expandS(i);openSec=i;}updateDots();}
+function expandS(i){document.getElementById("body"+i).classList.remove("collapsed");document.getElementById("chev"+i).classList.add("open");}
+function collapseS(i){document.getElementById("body"+i).classList.add("collapsed");document.getElementById("chev"+i).classList.remove("open");}
+function jumpTo(i){if(openSec>=0)collapseS(openSec);expandS(i);openSec=i;updateDots();document.getElementById("sec"+i).scrollIntoView({behavior:"smooth",block:"start"});}
+function updateDots(){
+  document.querySelectorAll(".nav-dot").forEach((d,i)=>{d.classList.remove("active","done");if(i===openSec)d.classList.add("active");else if(i<openSec)d.classList.add("done");});
+  document.getElementById("navLabel").textContent=openSec>=0?(openSec+1)+" / 7 — "+SEC_NAMES[openSec]:"";
+}
+
+// ════════════════════════════════════════════════════
+// RADIO / CHIP / STATUS
+// ════════════════════════════════════════════════════
+function selectRadio(gid,el){document.querySelectorAll("#"+gid+" .ms-radio").forEach(r=>r.classList.remove("selected"));el.classList.add("selected");updateProgress();}
+function selectTech(gid,el,mode){if(mode==="single"){document.querySelectorAll("#"+gid+" .tech-chip").forEach(c=>c.classList.remove("selected"));}el.classList.toggle("selected");updateProgress();}
+function selectTecSecOtro(el){
+  el.classList.toggle("selected");
+  const cond=document.getElementById("condTecSecOtro");
+  cond.classList.toggle("on", el.classList.contains("selected"));
+  if(!el.classList.contains("selected")){
+    document.getElementById("tecSecOtroNombre").value="";
+  }
+}
+function selectStatus(el,val){document.querySelectorAll(".status-card").forEach(c=>c.classList.remove("selected"));el.classList.add("selected");document.getElementById("estadoVehiculo").value=val;updateProgress();}
+
+// ════════════════════════════════════════════════════
+// PATENTE FORMAT
+// ════════════════════════════════════════════════════
+function formatPatente(el){let v=el.value.toUpperCase().replace(/[^A-Z0-9]/g,"");if(v.length>6)v=v.slice(0,6);let f="";for(let i=0;i<v.length;i++){if(i>0&&i%2===0)f+=" ";f+=v[i];}el.value=f;}
+
+// ════════════════════════════════════════════════════
+// TELÉFONO FORMAT
+// ════════════════════════════════════════════════════
+function formatTelefono(el){let v=el.value.replace(/\s/g,"");if(/^9\d{7,8}$/.test(v)){const d=v.slice(1).slice(-8);el.value="+56 9 "+d.slice(0,4)+" "+d.slice(4);return;}if(/^\d{8}$/.test(v)){el.value="+56 9 "+v.slice(0,4)+" "+v.slice(4);return;}if(v.startsWith("+569")){const d=v.slice(4).slice(0,8);el.value="+56 9 "+d.slice(0,4)+" "+d.slice(4);}}
+
+// ════════════════════════════════════════════════════
+// MARCA / CIUDAD CONDICIONALES
+// ════════════════════════════════════════════════════
+function updateModelos(){const m=document.getElementById("marca").value;document.getElementById("condMarcaOtra").classList.toggle("on",m==="__otra__");updateProgress();}
+function checkCiudadOtra(){document.getElementById("condCiudadOtra").classList.toggle("on",document.getElementById("ciudad").value==="__otra__");}
+
+// ════════════════════════════════════════════════════
+// PRESUPUESTOS
+// ════════════════════════════════════════════════════
+let presupCount=0;
+function addPresupuesto(){
+  presupCount++;const id="presup_"+presupCount;const list=document.getElementById("presupList");
+  const div=document.createElement("div");div.className="presup-item";div.id=id;
+  div.innerHTML=`<div class="presup-item-header"><span class="presup-item-title">Presupuesto ${presupCount}</span>${presupCount>1?`<button type="button" class="btn-remove" onclick="removeItem('${id}')">×</button>`:''}</div><div style="display:flex;flex-direction:column;gap:10px"><div class="field"><label class="field-label">¿Solicita presupuesto?</label><div class="toggle-wrap"><button type="button" class="toggle-btn" onclick="togglePresup('${id}',true,this)">✅ Sí</button><button type="button" class="toggle-btn" onclick="togglePresup('${id}',false,this)">❌ No</button></div></div><div class="cond-block" id="${id}_cond" style="gap:10px"><div class="field"><label class="field-label">N° Presupuesto</label><input class="ms-input" type="text" placeholder="Número…"></div><div class="field"><label class="field-label">¿Aprueba?</label><div class="toggle-wrap"><button type="button" class="toggle-btn" onclick="toggleAprueba('${id}',true,this)">✅ Sí</button><button type="button" class="toggle-btn" onclick="toggleAprueba('${id}',false,this)">❌ No</button></div></div></div></div>`;
+  list.appendChild(div);
+}
+function togglePresup(id,val,btn){const cond=document.getElementById(id+"_cond");const btns=btn.parentElement.querySelectorAll(".toggle-btn");btns[0].className="toggle-btn"+(val?" yes":"");btns[1].className="toggle-btn"+(!val?" no":"");if(val)cond.classList.add("on");else cond.classList.remove("on");}
+function toggleAprueba(id,val,btn){const btns=btn.parentElement.querySelectorAll(".toggle-btn");btns[0].className="toggle-btn"+(val?" yes":"");btns[1].className="toggle-btn"+(!val?" no":"");}
+function removeItem(id){document.getElementById(id)?.remove();}
+addPresupuesto();
+
+// ════════════════════════════════════════════════════
+// SERVICIO EXTERNO
+// ════════════════════════════════════════════════════
+function toggleServExt(){const v=parseFloat(document.getElementById("montoSE").value)||0;document.getElementById("condServExt").classList.toggle("on",v>0);}
+
+// ════════════════════════════════════════════════════
+// SERVICIOS DINÁMICOS
+// ════════════════════════════════════════════════════
+let svcCount=0;
+function buildSvcSelect(sid){return`<select class="ms-select" id="${sid}" onchange="onSvcChange('${sid}');updateBU();updateProgress()"><option value="">Seleccionar servicio…</option><optgroup label="── Taller Mecánico ──">${SVC_TALLER.map(s=>`<option>${s}</option>`).join("")}</optgroup><optgroup label="── Servicio Rápido ──">${SVC_SR.map(s=>`<option>${s}</option>`).join("")}</optgroup><optgroup label="── Desabolladura y Pintura ──">${SVC_DYP.map(s=>`<option>${s}</option>`).join("")}</optgroup></select>`;}
+function addServicio(){
+  svcCount++;const sid="svc_"+svcCount;const list=document.getElementById("svcList");
+  const div=document.createElement("div");div.className="svc-item";div.id=sid;
+  div.innerHTML=`<div class="svc-item-header"><span class="svc-item-title">Servicio ${svcCount}</span>${svcCount>1?`<button type="button" class="btn-remove" onclick="removeItem('${sid}');updateBU()">×</button>`:''}</div>${buildSvcSelect(sid+"_sel")}<div class="cond-block" id="${sid}_detail" style="margin-top:8px"><div class="field"><label class="field-label">Detalla el servicio</label><input class="ms-input" type="text" placeholder="Describe…"></div></div>`;
+  list.appendChild(div);
+}
+function onSvcChange(selId){const val=document.getElementById(selId)?.value||"";const baseId=selId.replace("_sel","");const detEl=document.getElementById(baseId+"_detail");if(detEl)detEl.classList.toggle("on",SVC_REQUIRES_DETAIL.has(val));}
+addServicio();
+
+// ════════════════════════════════════════════════════
+// BU + MO DISTRIBUCIÓN
+// ════════════════════════════════════════════════════
+function updateBU(){
+  const selects=document.querySelectorAll("#svcList select");const buSet=new Set();
+  selects.forEach(sel=>{const bu=getBU(sel.value);if(bu)buSet.add(bu);});
+  const container=document.getElementById("buTags");
+  if(buSet.size===0){container.innerHTML='<span class="bu-tag bu-empty">— Selecciona al menos un servicio →</span>';document.getElementById("moByBuBlock").style.display="none";return;}
+  const clsMap={"Taller Mecánico":"bu-taller","Servicio Rápido":"bu-sr","DyP":"bu-dyp"};
+  const iconMap={"Taller Mecánico":"🔧","Servicio Rápido":"⚡","DyP":"🎨"};
+  container.innerHTML=[...buSet].map(bu=>`<span class="bu-tag ${clsMap[bu]}">${iconMap[bu]} ${bu}</span>`).join("");
+  const block=document.getElementById("moByBuBlock");const inputsDiv=document.getElementById("moByBuInputs");
+  if(buSet.size>1){
+    block.style.display="flex";const ev={};inputsDiv.querySelectorAll("input[data-bu]").forEach(inp=>{ev[inp.dataset.bu]=inp.value;});
+    inputsDiv.innerHTML=[...buSet].map(bu=>`<div style="display:flex;align-items:center;gap:10px;"><span class="bu-tag ${clsMap[bu]}" style="min-width:160px;justify-content:center;">${iconMap[bu]} ${bu}</span><div class="amount-wrap" style="flex:1;position:relative;"><span class="amount-prefix">$</span><input class="ms-input" type="number" min="0" placeholder="0" data-bu="${bu}" style="padding-left:24px" value="${ev[bu]||''}" oninput="validateMoByBu()"></div></div>`).join("");
+    validateMoByBu();
+  }else{block.style.display="none";inputsDiv.innerHTML="";document.getElementById("moByBuValidation").style.display="none";}
+}
+function validateMoByBu(){
+  const moTotal=parseFloat(document.getElementById("montoMO").value)||0;
+  const inputs=document.querySelectorAll("#moByBuInputs input[data-bu]");if(!inputs.length)return;
+  const sum=[...inputs].reduce((acc,inp)=>acc+(parseFloat(inp.value)||0),0);
+  const vDiv=document.getElementById("moByBuValidation");vDiv.style.display="block";
+  if(moTotal===0){vDiv.style.cssText="display:block;background:#f0f0f0;color:#616161;border:1px solid #e0e0e0;font-size:11.5px;padding:7px 10px;border-radius:4px;font-weight:600;";vDiv.textContent="ℹ️ Ingresa primero el total de MO.";return;}
+  const diff=moTotal-sum;
+  if(Math.abs(diff)<1){vDiv.style.cssText="display:block;background:#e8f4e8;color:#107c10;border:1px solid #c6e0c6;font-size:11.5px;padding:7px 10px;border-radius:4px;font-weight:600;";vDiv.textContent="✅ Distribución correcta — $"+sum.toLocaleString("es-CL");}
+  else if(diff>0){vDiv.style.cssText="display:block;background:#fff8e1;color:#d83b01;border:1px solid #ffe0a0;font-size:11.5px;padding:7px 10px;border-radius:4px;font-weight:600;";vDiv.textContent="⚠️ Faltan $"+Math.round(diff).toLocaleString("es-CL")+" por distribuir";}
+  else{vDiv.style.cssText="display:block;background:#fce8e8;color:#c4262e;border:1px solid #f5c6c8;font-size:11.5px;padding:7px 10px;border-radius:4px;font-weight:600;";vDiv.textContent="⚠️ Excede en $"+Math.round(Math.abs(diff)).toLocaleString("es-CL");}
+}
+
+// ════════════════════════════════════════════════════
+// TOTAL
+// ════════════════════════════════════════════════════
+function updateTotal(){
+  const r=parseFloat(document.getElementById("montoRep").value)||0;
+  const l=parseFloat(document.getElementById("montoLub").value)||0;
+  const m=parseFloat(document.getElementById("montoMO").value)||0;
+  const s=parseFloat(document.getElementById("montoSE").value)||0;
+  const d=parseFloat(document.getElementById("descuento").value)||0;
+  document.getElementById("totalDisplay").textContent="$ "+Math.max(0,r+l+m+s-d).toLocaleString("es-CL");
+}
+
+// ════════════════════════════════════════════════════
+// ENCUESTA
+// ════════════════════════════════════════════════════
+function toggleEncuesta(val,btn){
+  const btns=[document.getElementById("encSiBtn"),document.getElementById("encNoBtn")];
+  btns[0].className="toggle-btn"+(val?" yes":"");
+  btns[1].className="toggle-btn"+(!val?" no":"");
+  const bloque=document.getElementById("encuestaBloque");
+  bloque.style.display=val?"flex":"none";
+  updateProgress();
+}
+function selectScale(scaleId,val,btn){
+  document.querySelectorAll("#"+scaleId+" .scale-btn").forEach(b=>b.classList.remove("selected"));
+  btn.classList.add("selected");
+  // Map scaleId to hidden input
+  const map={p1Scale:"p1Value",p2Scale:"p2Value",p3Scale:"p3Value",p4Scale:"p4Value"};
+  if(map[scaleId])document.getElementById(map[scaleId]).value=val;
+  // Deselect primera vez if scale selected for p3
+  if(scaleId==="p3Scale"){
+    const pv=document.getElementById("p3PrimeraVez");
+    pv.classList.remove("selected");
+    // Si estaba primera vez, limpiar esa marca
+  }
+}
+function togglePrimeraVez(btn){
+  btn.classList.toggle("selected");
+  if(btn.classList.contains("selected")){
+    // Deselect scale buttons for p3
+    document.querySelectorAll("#p3Scale .scale-btn").forEach(b=>b.classList.remove("selected"));
+    document.getElementById("p3Value").value="primera_vez";
+  } else {
+    document.getElementById("p3Value").value="";
+  }
+}
+function selectConocio(el,val){
+  document.querySelectorAll("#conocioGrid .conocio-chip").forEach(c=>c.classList.remove("selected"));
+  el.classList.add("selected");
+  document.getElementById("conocioValue").value=val;
+  document.getElementById("condConocioOtro").classList.toggle("on",val==="Otro");
+}
+
+// ════════════════════════════════════════════════════
+// PROGRESS
+// ════════════════════════════════════════════════════
+function updateProgress(){
+  const checks=[
+    !!document.getElementById("fechaIngreso").value,
+    !!document.querySelector("#tipoIngreso .selected"),
+    !!document.querySelector("#tecPrincipal .selected"),
+    !!document.getElementById("patente").value,
+    !!document.getElementById("anio").value,
+    !!(document.getElementById("marca").value&&document.getElementById("marca").value!="__otra__"||document.getElementById("marcaOtra").value),
+    !!document.getElementById("modeloInput").value,
+    !!document.getElementById("km").value,
+    !!document.querySelector("#tipoCliente .selected"),
+    !!document.getElementById("propietario").value,
+    !!document.getElementById("telefono").value,
+    !!document.getElementById("montoMO").value,
+    !!(document.querySelector("#svcList select")&&document.querySelector("#svcList select").value),
+    !!document.getElementById("estadoVehiculo").value,
+    !!document.getElementById("fechaEntrega").value,
+    !!document.querySelector("#tipoDoc .selected"),
+  ];
+  const pct=Math.round(checks.filter(Boolean).length/checks.length*100);
+  document.getElementById("progressBar").style.width=pct+"%";
+}
+
+// ════════════════════════════════════════════════════
+// GUARDAR EN GOOGLE SHEETS
+// ════════════════════════════════════════════════════
+function saveToGoogleSheets(){
+  // Validaciones básicas
+  const required=[
+    {id:"nroOT",label:"N° Orden de Trabajo",sec:0},
+    {id:"fechaIngreso",label:"Fecha de Ingreso",sec:0},
+    {id:"patente",label:"Patente",sec:1},
+    {id:"anio",label:"Año",sec:1},
+    {id:"km",label:"Kilometraje",sec:1},
+    {id:"propietario",label:"Propietario",sec:2},
+    {id:"telefono",label:"Teléfono",sec:2},
+    {id:"montoMO",label:"Mano de Obra",sec:3},
+    {id:"fechaEntrega",label:"Fecha de Entrega",sec:5},
+  ];
+  for(const f of required){if(!document.getElementById(f.id).value.trim()){showToast("⚠️ Requerido: "+f.label,"err");jumpTo(f.sec);return;}}
+  if(!document.querySelector("#tipoIngreso .selected")){showToast("⚠️ Selecciona el Tipo de Ingreso","err");jumpTo(0);return;}
+  if(!document.querySelector("#tecPrincipal .selected")){showToast("⚠️ Selecciona el Técnico Principal","err");jumpTo(0);return;}
+  if(!document.querySelector("#tipoCliente .selected")){showToast("⚠️ Selecciona el Tipo de Cliente","err");jumpTo(2);return;}
+  if(!document.querySelector("#svcList select")?.value){showToast("⚠️ Selecciona al menos un Servicio","err");jumpTo(4);return;}
+  if(!document.getElementById("estadoVehiculo").value){showToast("⚠️ Selecciona el Estado del Vehículo","err");jumpTo(5);return;}
+  if(!document.querySelector("#tipoDoc .selected")){showToast("⚠️ Selecciona el Documento Tributario","err");jumpTo(5);return;}
+
+  const asesor=asesores[curAsesor];
+  const marca=document.getElementById("marca").value==="__otra__"?document.getElementById("marcaOtra").value:document.getElementById("marca").value;
+  const ciudad=document.getElementById("ciudad").value==="__otra__"?document.getElementById("ciudadOtra").value:document.getElementById("ciudad").value;
+  const buSet=new Set();document.querySelectorAll("#svcList select").forEach(s=>{const bu=getBU(s.value);if(bu)buSet.add(bu);});
+  const encuestaAplica=document.getElementById("encSiBtn").classList.contains("yes");
+  const conocio=document.getElementById("conocioValue").value;
+  const conocioFinal=conocio==="Otro"?(document.getElementById("conocioOtro").value||"Otro"):conocio;
+
+  const data={
+    nroOT:document.getElementById("nroOT").value,
+    fechaIngreso:document.getElementById("fechaIngreso").value,
+    asesor:asesor.name,
+    asesorEmail:asesor.email,
+    sucursal:asesor.sucursal,
+    tipoIngreso:document.querySelector("#tipoIngreso .selected")?.textContent?.trim()||"",
+    tecnicoPrincipal:document.querySelector("#tecPrincipal .selected")?.textContent||"",
+    tecnicosSecundarios:(()=>{
+      const chips=[...document.querySelectorAll("#tecSecundario .selected")].map(e=>{
+        if(e.id==="tecSecOtroChip"){
+          const nombre=document.getElementById("tecSecOtroNombre").value.trim();
+          return nombre?nombre:"Otro";
+        }
+        return e.textContent;
+      });
+      return chips.join("; ")||"";
+    })(),
+    patente:document.getElementById("patente").value,
+    marca,
+    modelo:document.getElementById("modeloInput").value,
+    cilindrada:document.getElementById("cilindrada").value,
+    anio:document.getElementById("anio").value,
+    km:document.getElementById("km").value,
+    tipoCliente:document.querySelector("#tipoCliente .selected")?.textContent?.replace(/[👤🏢🔧]/g,"").trim()||"",
+    propietario:document.getElementById("propietario").value,
+    telefono:document.getElementById("telefono").value,
+    email:document.getElementById("emailCliente").value,
+    ciudad,
+    montoRepuestos:parseFloat(document.getElementById("montoRep").value)||0,
+    montoLubricantes:parseFloat(document.getElementById("montoLub").value)||0,
+    montoMO:parseFloat(document.getElementById("montoMO").value)||0,
+    montoServicioExterno:parseFloat(document.getElementById("montoSE").value)||0,
+    descServicioExterno:document.getElementById("descSE").value,
+    descuento:parseFloat(document.getElementById("descuento").value)||0,
+    totalReparacion:Math.max(0,(parseFloat(document.getElementById("montoRep").value)||0)+(parseFloat(document.getElementById("montoLub").value)||0)+(parseFloat(document.getElementById("montoMO").value)||0)+(parseFloat(document.getElementById("montoSE").value)||0)-(parseFloat(document.getElementById("descuento").value)||0)),
+    tipoServicio1:document.querySelector("#svcList select")?.value||"",
+    tipoServicio2:document.querySelectorAll("#svcList select")[1]?.value||"",
+    unidadesNegocio:[...buSet].join("; "),
+    estadoVehiculo:document.getElementById("estadoVehiculo").value,
+    fechaEntrega:document.getElementById("fechaEntrega").value,
+    tipoDocumento:document.querySelector("#tipoDoc .selected")?.textContent?.replace(/[🧾📄🚫]/g,"").trim()||"",
+    nroDocumento:document.getElementById("nroDoc").value,
+    encuestaAplica:encuestaAplica?"Sí":"No",
+    encP1Tiempo:encuestaAplica?document.getElementById("p1Value").value:"",
+    encP2Atencion:encuestaAplica?document.getElementById("p2Value").value:"",
+    encP3Servicio:encuestaAplica?document.getElementById("p3Value").value:"",
+    encP4Recomienda:encuestaAplica?document.getElementById("p4Value").value:"",
+    encConocio:encuestaAplica?conocioFinal:"",
+    otInicio:OT_INICIO,
+  };
+
+  showToast("⏳ Guardando en Google Sheets…","");
+  document.querySelector(".btn-submit").disabled=true;
+  document.querySelector(".btn-submit").textContent="Guardando…";
+
+  // Envío mediante formulario HTML nativo (evita CORS completamente)
+  const form = document.createElement("form");
+  form.method = "POST";
+  form.action = APPS_SCRIPT_URL;
+  form.target = "hidden_iframe";
+  form.style.display = "none";
+
+  const input = document.createElement("input");
+  input.type = "hidden";
+  input.name = "payload";
+  input.value = JSON.stringify(data);
+  form.appendChild(input);
+
+  // Iframe oculto para capturar respuesta sin redirigir
+  let iframe = document.getElementById("hidden_iframe");
+  if (!iframe) {
+    iframe = document.createElement("iframe");
+    iframe.name = "hidden_iframe";
+    iframe.id = "hidden_iframe";
+    iframe.style.display = "none";
+    document.body.appendChild(iframe);
+  }
+
+  iframe.onload = function() {
+    showToast("✅ OT guardada en Google Sheets","ok");
+    document.querySelector(".btn-submit").disabled=false;
+    document.querySelector(".btn-submit").innerHTML=`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14,2 14,8 20,8"/><line x1="12" y1="13" x2="12" y2="17"/><line x1="9" y1="15" x2="15" y2="15"/></svg> Guardar en Base de Datos`;
+    setTimeout(()=>{
+      clearForm();
+      showToast("📋 Formulario listo para nueva OT","ok");
+    },2500);
+  };
+
+  document.body.appendChild(form);
+  form.submit();
+  document.body.removeChild(form);
+}
+
+// ════════════════════════════════════════════════════
+// CLEAR
+// ════════════════════════════════════════════════════
+function clearForm(){
+  if(!confirm("¿Limpiar todos los campos?"))return;
+  document.querySelectorAll(".ms-input,.ms-select,.ms-textarea").forEach(el=>{el.value="";el.classList.remove("err");});
+  document.querySelectorAll(".ms-radio,.tech-chip,.status-card,.scale-btn,.conocio-chip,.primera-vez-btn").forEach(el=>el.classList.remove("selected"));
+  document.querySelectorAll(".cond-block").forEach(el=>el.classList.remove("on"));
+  document.querySelectorAll(".toggle-btn").forEach(el=>el.className="toggle-btn");
+  document.getElementById("estadoVehiculo").value="";
+  document.getElementById("p1Value").value="";document.getElementById("p2Value").value="";
+  document.getElementById("p3Value").value="";document.getElementById("p4Value").value="";
+  document.getElementById("conocioValue").value="";
+  document.getElementById("totalDisplay").textContent="$ 0";
+  document.getElementById("buTags").innerHTML='<span class="bu-tag bu-empty">— Selecciona al menos un servicio →</span>';
+  if(document.getElementById("nroOT")) document.getElementById("nroOT").value="";
+  document.getElementById("encuestaBloque").style.display="none";
+  document.getElementById("presupList").innerHTML="";presupCount=0;addPresupuesto();
+  document.getElementById("svcList").innerHTML="";svcCount=0;addServicio();
+  document.getElementById("condTecSecOtro").classList.remove("on");
+  document.getElementById("tecSecOtroNombre").value="";
+  document.getElementById("fechaIngreso").valueAsDate=new Date();
+  document.getElementById("fechaEntrega").valueAsDate=new Date();
+  document.getElementById("progressBar").style.width="0%";
+  showToast("Formulario limpiado","");
+}
+
+// ════════════════════════════════════════════════════
+// TOAST
+// ════════════════════════════════════════════════════
+let toastT;
+function showToast(msg,type){
+  const t=document.getElementById("toast");t.textContent=msg;
+  t.className="toast show"+(type==="err"?" err":type==="ok"?" ok":type==="warn"?" warn":"");
+  clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove("show"),3500);
+}
+updateProgress();
+</script>
+
+<!-- ═══ BOTÓN INSTALAR PWA ═══ -->
+<button id="btnInstalar" style="display:none;position:fixed;bottom:22px;left:22px;z-index:998;background:#c4262e;color:#fff;border:none;border-radius:28px;padding:12px 20px;font-family:'Segoe UI',sans-serif;font-size:14px;font-weight:600;cursor:pointer;box-shadow:0 6px 20px rgba(196,38,46,.4);display:none;align-items:center;gap:8px;">
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+  Instalar App
+</button>
+
+<script>
+// ═══════════════════════════════════════════
+// PWA: Service Worker + Instalación
+// ═══════════════════════════════════════════
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('service-worker.js')
+      .then(reg => console.log('SW registrado:', reg.scope))
+      .catch(err => console.log('SW error:', err));
+  });
+}
+
+// Capturar evento de instalación
+let deferredPrompt;
+const btnInstalar = document.getElementById('btnInstalar');
+
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+  btnInstalar.style.display = 'flex';
+});
+
+btnInstalar.addEventListener('click', async () => {
+  if (!deferredPrompt) return;
+  deferredPrompt.prompt();
+  const { outcome } = await deferredPrompt.userChoice;
+  if (outcome === 'accepted') {
+    btnInstalar.style.display = 'none';
+    showToast('✅ App instalada correctamente','ok');
+  }
+  deferredPrompt = null;
+});
+
+// Ocultar botón si ya está instalada
+window.addEventListener('appinstalled', () => {
+  btnInstalar.style.display = 'none';
+  deferredPrompt = null;
+});
+</script>
+
+</body>
+</html>
