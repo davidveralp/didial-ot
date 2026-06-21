@@ -826,11 +826,11 @@ let presupCount=0;
 function addPresupuesto(){
   presupCount++;const id="presup_"+presupCount;const list=document.getElementById("presupList");
   const div=document.createElement("div");div.className="presup-item";div.id=id;
-  div.innerHTML=`<div class="presup-item-header"><span class="presup-item-title">Presupuesto ${presupCount}</span>${presupCount>1?`<button type="button" class="btn-remove" onclick="removeItem('${id}')">×</button>`:''}</div><div style="display:flex;flex-direction:column;gap:10px"><div class="field"><label class="field-label">¿Solicitó presupuesto?</label><div class="toggle-wrap"><button type="button" class="toggle-btn" onclick="togglePresup('${id}',true,this)">✅ Sí</button><button type="button" class="toggle-btn" onclick="togglePresup('${id}',false,this)">❌ No</button></div></div><div class="cond-block" id="${id}_cond" style="gap:10px"><div class="field"><label class="field-label">N° Presupuesto</label><input class="ms-input" type="text" placeholder="Número…"></div><div class="field"><label class="field-label">¿Aprueba?</label><div class="toggle-wrap"><button type="button" class="toggle-btn" onclick="toggleAprueba('${id}',true,this)">✅ Sí</button><button type="button" class="toggle-btn" onclick="toggleAprueba('${id}',false,this)">❌ No</button></div></div></div></div>`;
+  div.innerHTML=`<div class="presup-item-header"><span class="presup-item-title">Presupuesto ${presupCount}</span>${presupCount>1?`<button type="button" class="btn-remove" onclick="removeItem('${id}')">×</button>`:''}</div><div style="display:flex;flex-direction:column;gap:10px"><div class="field"><label class="field-label">¿Solicitó presupuesto?</label><div class="toggle-wrap"><button type="button" class="toggle-btn" id="${id}_solSi" onclick="togglePresup('${id}',true,this)">✅ Sí</button><button type="button" class="toggle-btn" id="${id}_solNo" onclick="togglePresup('${id}',false,this)">❌ No</button></div><input type="hidden" id="${id}_solicito" value=""></div><div class="cond-block" id="${id}_cond" style="gap:10px"><div class="field"><label class="field-label">N° Presupuesto</label><input class="ms-input" type="text" id="${id}_numero" placeholder="Número…"></div><div class="field"><label class="field-label">¿Aprueba?</label><div class="toggle-wrap"><button type="button" class="toggle-btn" id="${id}_aprSi" onclick="toggleAprueba('${id}',true,this)">✅ Sí</button><button type="button" class="toggle-btn" id="${id}_aprNo" onclick="toggleAprueba('${id}',false,this)">❌ No</button></div><input type="hidden" id="${id}_aprueba" value=""></div></div></div>`;
   list.appendChild(div);
 }
-function togglePresup(id,val,btn){const cond=document.getElementById(id+"_cond");const btns=btn.parentElement.querySelectorAll(".toggle-btn");btns[0].className="toggle-btn"+(val?" yes":"");btns[1].className="toggle-btn"+(!val?" no":"");if(val)cond.classList.add("on");else cond.classList.remove("on");}
-function toggleAprueba(id,val,btn){const btns=btn.parentElement.querySelectorAll(".toggle-btn");btns[0].className="toggle-btn"+(val?" yes":"");btns[1].className="toggle-btn"+(!val?" no":"");}
+function togglePresup(id,val,btn){const cond=document.getElementById(id+"_cond");const btns=btn.parentElement.querySelectorAll(".toggle-btn");btns[0].className="toggle-btn"+(val?" yes":"");btns[1].className="toggle-btn"+(!val?" no":"");if(val)cond.classList.add("on");else cond.classList.remove("on");document.getElementById(id+"_solicito").value=val?"Sí":"No";}
+function toggleAprueba(id,val,btn){const btns=btn.parentElement.querySelectorAll(".toggle-btn");btns[0].className="toggle-btn"+(val?" yes":"");btns[1].className="toggle-btn"+(!val?" no":"");document.getElementById(id+"_aprueba").value=val?"Sí":"No";}
 function removeItem(id){document.getElementById(id)?.remove();}
 addPresupuesto();
 
@@ -994,6 +994,26 @@ function saveToGoogleSheets(){
   const conocio=document.getElementById("conocioValue").value;
   const conocioFinal=conocio==="Otro"?(document.getElementById("conocioOtro").value||"Otro"):conocio;
 
+  // ── Recolección de PRESUPUESTOS ──
+  const presupuestos=[];
+  document.querySelectorAll("#presupList .presup-item").forEach(item=>{
+    const solicito=item.querySelector("[id$='_solicito']")?.value||"";
+    const numero=item.querySelector("[id$='_numero']")?.value||"";
+    const aprueba=item.querySelector("[id$='_aprueba']")?.value||"";
+    // Solo registrar presupuestos donde se indicó algo
+    if(solicito){
+      presupuestos.push({solicito,numero,aprueba});
+    }
+  });
+  // Resumen consolidado para columnas individuales
+  const presupSolicito = presupuestos.length ? (presupuestos.some(p=>p.solicito==="Sí")?"Sí":"No") : "";
+  const presupNumeros  = presupuestos.filter(p=>p.numero).map(p=>p.numero).join("; ");
+  const presupAprueba  = presupuestos.length ? (
+      presupuestos.some(p=>p.aprueba==="Sí") ? "Sí" :
+      (presupuestos.some(p=>p.aprueba==="No") ? "No" : "")
+    ) : "";
+  const presupDetalle  = presupuestos.map((p,i)=>`P${i+1}: solicitó=${p.solicito||"-"}, N°=${p.numero||"-"}, aprobó=${p.aprueba||"-"}`).join(" | ");
+
   const data={
     nroOT:document.getElementById("nroOT").value,
     fechaIngreso:document.getElementById("fechaIngreso").value,
@@ -1037,6 +1057,10 @@ function saveToGoogleSheets(){
     fechaEntrega:document.getElementById("fechaEntrega").value,
     tipoDocumento:document.querySelector("#tipoDoc .selected")?.textContent?.replace(/[🧾📄🚫]/g,"").trim()||"",
     nroDocumento:document.getElementById("nroDoc").value,
+    presupSolicito:presupSolicito,
+    presupNumero:presupNumeros,
+    presupAprueba:presupAprueba,
+    presupDetalle:presupDetalle,
     encuestaAplica:encuestaAplica?"Sí":"No",
     encP1Tiempo:encuestaAplica?document.getElementById("p1Value").value:"",
     encP2Atencion:encuestaAplica?document.getElementById("p2Value").value:"",
