@@ -509,7 +509,7 @@ hr.divider{border:none;border-top:1px dashed var(--ms-border);margin:2px 0;}
       <div class="amount-grid">
         <div class="field"><label class="field-label">Repuestos</label><div class="amount-wrap"><span class="amount-prefix">$</span><input class="ms-input" id="montoRep" type="number" placeholder="0" min="0" oninput="updateTotal()"></div></div>
         <div class="field"><label class="field-label">Lubricantes e Insumos</label><div class="amount-wrap"><span class="amount-prefix">$</span><input class="ms-input" id="montoLub" type="number" placeholder="0" min="0" oninput="updateTotal()"></div></div>
-        <div class="field"><label class="field-label">Mano de Obra <span class="req">*</span></label><div class="amount-wrap"><span class="amount-prefix">$</span><input class="ms-input" id="montoMO" type="number" placeholder="0" min="0" oninput="updateTotal();validateMoByBu()"></div></div>
+        <div class="field"><label class="field-label">Mano de Obra <span class="req" id="moReq">*</span><span id="moGarantiaHint" style="display:none;color:#16a34a;font-size:12px;font-weight:600;margin-left:6px;">✓ Garantía: puede ser $0</span></label><div class="amount-wrap"><span class="amount-prefix">$</span><input class="ms-input" id="montoMO" type="number" placeholder="0" min="0" oninput="updateTotal();validateMoByBu()"></div></div>
         <div class="field"><label class="field-label">Servicio Externo</label><div class="amount-wrap"><span class="amount-prefix">$</span><input class="ms-input" id="montoSE" type="number" placeholder="0" min="0" oninput="updateTotal();toggleServExt()"></div></div>
       </div>
       <div class="cond-block" id="condServExt">
@@ -791,7 +791,15 @@ function updateDots(){
 // ════════════════════════════════════════════════════
 // RADIO / CHIP / STATUS
 // ════════════════════════════════════════════════════
-function selectRadio(gid,el){document.querySelectorAll("#"+gid+" .ms-radio").forEach(r=>r.classList.remove("selected"));el.classList.add("selected");updateProgress();}
+function selectRadio(gid,el){document.querySelectorAll("#"+gid+" .ms-radio").forEach(r=>r.classList.remove("selected"));el.classList.add("selected");if(gid==="tipoIngreso")actualizarMoGarantia();updateProgress();}
+function actualizarMoGarantia(){
+  const t=document.querySelector("#tipoIngreso .selected")?.textContent?.trim().toLowerCase()||"";
+  const esGarantia=t.includes("garant");
+  const req=document.getElementById("moReq");
+  const hint=document.getElementById("moGarantiaHint");
+  if(req)req.style.display=esGarantia?"none":"inline";
+  if(hint)hint.style.display=esGarantia?"inline":"none";
+}
 function selectTech(gid,el,mode){if(mode==="single"){document.querySelectorAll("#"+gid+" .tech-chip").forEach(c=>c.classList.remove("selected"));}el.classList.toggle("selected");updateProgress();}
 function selectTecSecOtro(el){
   el.classList.toggle("selected");
@@ -952,7 +960,7 @@ function updateProgress(){
     !!document.querySelector("#tipoCliente .selected"),
     !!document.getElementById("propietario").value,
     !!document.getElementById("telefono").value,
-    !!document.getElementById("montoMO").value,
+    (function(){var t=document.querySelector("#tipoIngreso .selected")?.textContent?.trim().toLowerCase()||"";return t.includes("garant")?true:!!document.getElementById("montoMO").value;})(),
     !!(document.querySelector("#svcList select")&&document.querySelector("#svcList select").value),
     !!document.getElementById("estadoVehiculo").value,
     !!document.getElementById("fechaEntrega").value,
@@ -975,9 +983,16 @@ function saveToGoogleSheets(){
     {id:"km",label:"Kilometraje",sec:1},
     {id:"propietario",label:"Propietario",sec:2},
     {id:"telefono",label:"Teléfono",sec:2},
-    {id:"montoMO",label:"Mano de Obra",sec:3},
     {id:"fechaEntrega",label:"Fecha de Entrega",sec:5},
   ];
+  // Detectar si es OT por garantía (cualquier tipo)
+  const tipoIngresoTxt=document.querySelector("#tipoIngreso .selected")?.textContent?.trim()||"";
+  const esGarantia=tipoIngresoTxt.toLowerCase().includes("garant");
+  // Mano de Obra: obligatorio SOLO si NO es garantía
+  if(!esGarantia){
+    const moVal=document.getElementById("montoMO").value.trim();
+    if(!moVal){showToast("⚠️ Requerido: Mano de Obra","err");jumpTo(3);return;}
+  }
   for(const f of required){if(!document.getElementById(f.id).value.trim()){showToast("⚠️ Requerido: "+f.label,"err");jumpTo(f.sec);return;}}
   if(!document.querySelector("#tipoIngreso .selected")){showToast("⚠️ Selecciona el Tipo de Ingreso","err");jumpTo(0);return;}
   if(!document.querySelector("#tecPrincipal .selected")){showToast("⚠️ Selecciona el Técnico Principal","err");jumpTo(0);return;}
@@ -1148,6 +1163,49 @@ function showToast(msg,type){
   t.className="toast show"+(type==="err"?" err":type==="ok"?" ok":type==="warn"?" warn":"");
   clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove("show"),3500);
 }
+
+// ════════════════════════════════════════════════════
+// PRECARGA DESDE PARÁMETROS URL (?patente=...&telefono=...)
+// ════════════════════════════════════════════════════
+(function precargarDesdeURL(){
+  const p = new URLSearchParams(location.search);
+  if([...p.keys()].length===0) return; // sin parámetros, no hacer nada
+  const set = (id, val) => { const el = document.getElementById(id); if(el && val) el.value = val; };
+
+  // Campos de texto directos
+  set('nroOT',        p.get('ot'));
+  set('patente',      p.get('patente'));
+  set('modeloInput',  p.get('modelo'));
+  set('cilindrada',   p.get('cilindrada'));
+  set('anio',         p.get('anio'));
+  set('km',           p.get('km'));
+  set('propietario',  p.get('nombre'));
+  set('telefono',     p.get('telefono'));
+  set('emailCliente', p.get('email'));
+  set('nroDoc',       p.get('documento'));
+  set('montoRep',     p.get('repuestos'));
+  set('montoLub',     p.get('lubricantes'));
+  set('montoMO',      p.get('mo'));
+
+  // MARCA (select con opción "Otra")
+  const marcaVal = p.get('marca');
+  if(marcaVal){
+    const sel = document.getElementById('marca');
+    if([...sel.options].some(o=>o.value===marcaVal)){ sel.value=marcaVal; }
+    else { sel.value='__otra__'; const o=document.getElementById('marcaOtra'); if(o)o.value=marcaVal; if(typeof checkMarcaOtra==='function')checkMarcaOtra(); }
+  }
+
+  // CIUDAD (select con opción "Otra")
+  const ciudadVal = p.get('ciudad');
+  if(ciudadVal){
+    const sel = document.getElementById('ciudad');
+    if([...sel.options].some(o=>o.value===ciudadVal)){ sel.value=ciudadVal; }
+    else { sel.value='__otra__'; const o=document.getElementById('ciudadOtra'); if(o)o.value=ciudadVal; if(typeof checkCiudadOtra==='function')checkCiudadOtra(); }
+  }
+
+  if(typeof updateTotal==='function') updateTotal();
+})();
+
 updateProgress();
 </script>
 
