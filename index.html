@@ -77,8 +77,8 @@ body{font-family:"Segoe UI",-apple-system,BlinkMacSystemFont,sans-serif;backgrou
 .section-body.collapsed{display:none;}
 
 /* FIELDS */
-.field{display:flex;flex-direction:column;gap:5px;}
-.field-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.field{display:flex;flex-direction:column;gap:5px;justify-content:flex-end;}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:end;}
 .field-label{font-size:13px;font-weight:600;display:flex;align-items:center;gap:4px;}
 .req{color:var(--ms-required);font-size:14px;line-height:1;}
 .field-hint{font-size:11px;color:var(--ms-text-sub);margin-top:-2px;}
@@ -479,6 +479,16 @@ hr.divider{border:none;border-top:1px dashed var(--ms-border);margin:2px 0;}
           </div>
         </div>
       </div>
+      <div class="field-row">
+        <div class="field">
+          <label class="field-label">Dirección (calle y número)</label>
+          <input class="ms-input" id="direccionCliente" type="text" placeholder="Ej: Av. Balmaceda 1234">
+        </div>
+        <div class="field">
+          <label class="field-label">Depto / Casa / Referencia</label>
+          <input class="ms-input" id="direccionRef" type="text" placeholder="Ej: Depto 502, Torre B / casa esquina">
+        </div>
+      </div>
     </div>
   </div>
 
@@ -824,7 +834,19 @@ function formatTelefono(el){let v=el.value.replace(/\s/g,"");if(/^9\d{7,8}$/.tes
 // ════════════════════════════════════════════════════
 // MARCA / CIUDAD CONDICIONALES
 // ════════════════════════════════════════════════════
-function updateModelos(){const m=document.getElementById("marca").value;document.getElementById("condMarcaOtra").classList.toggle("on",m==="__otra__");updateProgress();}
+function updateModelos(){
+  const m=document.getElementById("marca").value;
+  const block=document.getElementById("condMarcaOtra");
+  const inp=document.getElementById("marcaOtra");
+  if(m==="__otra__"){
+    block.classList.add("on");
+    setTimeout(()=>{if(inp){inp.focus();}},120);
+  }else{
+    block.classList.remove("on");
+    if(inp)inp.value="";
+  }
+  updateProgress();
+}
 function checkCiudadOtra(){document.getElementById("condCiudadOtra").classList.toggle("on",document.getElementById("ciudad").value==="__otra__");}
 
 // ════════════════════════════════════════════════════
@@ -1058,6 +1080,8 @@ function saveToGoogleSheets(){
     telefono:document.getElementById("telefono").value,
     email:document.getElementById("emailCliente").value,
     ciudad,
+    direccion:document.getElementById("direccionCliente").value,
+    direccionRef:document.getElementById("direccionRef").value,
     montoRepuestos:parseFloat(document.getElementById("montoRep").value)||0,
     montoLubricantes:parseFloat(document.getElementById("montoLub").value)||0,
     montoMO:parseFloat(document.getElementById("montoMO").value)||0,
@@ -1179,6 +1203,8 @@ function showToast(msg,type){
   set('cilindrada',   p.get('cilindrada'));
   set('anio',         p.get('anio'));
   set('km',           p.get('km'));
+  set('direccionCliente', p.get('direccion'));
+  set('direccionRef',     p.get('referencia'));
   set('propietario',  p.get('nombre'));
   set('telefono',     p.get('telefono'));
   set('emailCliente', p.get('email'));
